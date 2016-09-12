@@ -3,7 +3,9 @@
 
 int main() {
     std::cout << "Hello, World!" << std::endl;
-    gdwg::Graph<int, int> a;
+    gdwg::Graph<std::string, int> a;
+    std::cout<<a.num_node();
+
 //    int k = a.getg();
 //    std::cout<<k<<std::endl;
 
