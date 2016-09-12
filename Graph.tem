@@ -1,0 +1,4 @@
+template <typename N, typename E>
+N gdwg::Graph<N, E>::getg() {
+    return i;
+}
