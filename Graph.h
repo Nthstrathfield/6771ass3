@@ -14,9 +14,10 @@ namespace gdwg{
         std::shared_ptr<Edge<E>> next_;
      public:
         // default constructor
-        Node<N, E>(N &value): value_{value}, next_{nullptr} {};
+        Node(N &value): value_{value}, next_{nullptr} {};
+        Node();
         // copy constructor
-        Node<N, E>(Node<N, E> &cpy):{};
+        Node (const Node<N, E> &cpy);
     };
 
     // Edge template
@@ -29,8 +30,16 @@ namespace gdwg{
         std::shared_ptr<Edge<E>> next_;
      public:
         // default constructor
-        Edge<E>(E weight, int index, Edge<E> *arg): weight_(weight), index_(index), next_{std::make_shared<E>(arg)} {};
+        Edge<E>(E weight, int index): weight_(weight), index_(index), next_{nullptr}  {};
         // copy constructor
+        Edge<E>(Edge &cpy);
+        // memebr function
+        E getw() {
+            return weight_;
+        }
+        E geti() {
+            return index_;
+        }
     };
 
     // Graph template
@@ -41,24 +50,35 @@ namespace gdwg{
         std::vector<Node<N, E>*> node_;
      public:
         // default constructor
-        Graph<N, E>(){};
+        Graph(){};
         // copy constructor
-        Graph<N, E>(Graph<N, E> &cpy) {
+        Graph(Graph<N, E> &cpy) {
             for(unsigned int i; i < node_.size(); node_++) {
 
             }
         };
         // move constructor
-        Graph<N, E>(Graph<N, E> &&cpy) {};
+        Graph(Graph<N, E> &&cpy) {};
         //return number of nodes
         int num_node();
     };
 
 }
 
+
 // node copy constructor
 template <typename N, typename E>
-gdwg::Node::Node<N, E>(Node<N, E> &cpy) {
+gdwg::Node<N, E>::Node(const Node &cpy)  {
+//    value_ = cpy.value_;
+//    std::shared_ptr<Edge<E>> itorator;
+//    itorator = cpy.next_;
+//    if(itorator != nullptr) {
+//        std::make_shared(Edge<E>{itorator->getw(),itorator->geti()});
+//    }
+//    while(itorator!= nullptr) {
+//        itorator = itorator->next_;
+//    }
+
 
 };
 
