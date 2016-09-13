@@ -6,6 +6,7 @@
 namespace gdwg{
 
     template <typename E> class Edge;
+
     // Node template
     template <typename N, typename E>
     class Node {
@@ -14,10 +15,21 @@ namespace gdwg{
         std::shared_ptr<Edge<E>> next_;
      public:
         // default constructor
-        Node(N &value): value_{value}, next_{nullptr} {};
-        Node();
+        Node(const N &value): value_{value}, next_{nullptr} {};
         // copy constructor
         Node (const Node<N, E> &cpy);
+        // set edge;
+        void sete(std::shared_ptr<Edge<E>> new_edge) {
+            if (next_ == nullptr) {
+                next_ = new_edge;
+            } else {
+                std::shared_ptr<Edge<E>> itorator = next_;
+                while (itorator->getn() != nullptr) {
+                    itorator = itorator->getn();
+                }
+                itorator->setn(new_edge);
+            }
+        }
     };
 
     // Edge template
@@ -30,15 +42,21 @@ namespace gdwg{
         std::shared_ptr<Edge<E>> next_;
      public:
         // default constructor
-        Edge<E>(E weight, int index): weight_(weight), index_(index), next_{nullptr}  {};
+        Edge(E weight, int index): weight_(weight), index_(index), next_{nullptr}  {};
         // copy constructor
-        Edge<E>(Edge &cpy);
+        Edge(Edge &cpy);
         // memebr function
         E getw() {
             return weight_;
         }
-        E geti() {
+        int geti() {
             return index_;
+        }
+        std::shared_ptr<Edge<E>> getn() {
+            return next_;
+        }
+        void setn(std::shared_ptr<Edge<E>> n) {
+            next_ = n;
         }
     };
 
@@ -66,20 +84,28 @@ namespace gdwg{
 }
 
 
-// node copy constructor
+// node deep copy constructor, as well as copy the related edges
 template <typename N, typename E>
 gdwg::Node<N, E>::Node(const Node &cpy)  {
-//    value_ = cpy.value_;
-//    std::shared_ptr<Edge<E>> itorator;
-//    itorator = cpy.next_;
-//    if(itorator != nullptr) {
-//        std::make_shared(Edge<E>{itorator->getw(),itorator->geti()});
-//    }
-//    while(itorator!= nullptr) {
-//        itorator = itorator->next_;
-//    }
-
-
+    value_ = cpy.value_;
+    std::shared_ptr<Edge<E>> itorator;
+    std::shared_ptr<Edge<E>> itorator_new;
+    itorator = cpy.next_;
+    if(itorator != nullptr) {
+        next_ = std::make_shared(Edge<E>{itorator->getw(), itorator->geti()});
+        itorator_new = next_;
+        itorator = itorator->getn();
+    } else {
+        return *this;
+    }
+    while(itorator!= nullptr) {
+        // generate new edge node
+        itorator_new->setn(std::make_shared(Edge<E>{itorator->getw(), itorator->geti()}));
+        // go through old
+        itorator = itorator->getn();
+        // go through new
+        itorator_new = itorator_new->getn();
+    }
 };
 
 template <typename N, typename E>
