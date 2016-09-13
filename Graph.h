@@ -1,5 +1,6 @@
 #include <vector>
 #include <memory>
+#include <stdexcept>
 // Using Adjacency List to represent graph
 // copy node first, then edge
 
@@ -29,6 +30,12 @@ namespace gdwg {
                 }
                 itorator->setn(new_edge);
             }
+        }
+        N getv() {
+            return value_;
+        }
+        std::shared_ptr<Edge<E>> getn() {
+            return next_;
         }
         // print;
         void printnode() {
@@ -75,6 +82,10 @@ namespace gdwg {
         void setn(std::shared_ptr<Edge<E>> n) {
             next_ = n;
         }
+
+        template <typename E>
+        friend bool operator == (const Edge<E> &, const Edge<E> &);
+
     };
 
     // Graph template
@@ -82,20 +93,35 @@ namespace gdwg {
 
      private:
         // save node pointer node->egde1(node index|edge value)->edge2(node index|edge value)
-        std::vector<std::shared_ptr<Node>> node_;
+        std::vector<std::shared_ptr<Node<N, E>>> node_;
      public:
         // default constructor
         Graph(){};
         // copy constructor
         Graph(const Graph<N, E> &cpy);
         // move constructor
-        Graph(Graph<N, E> &&cpy) {};
+        Graph(Graph<N, E> &&cpy);
+
+        /****************** member function *******************/
         //return number of nodes
         int num_node();
+        // add node
+        bool addNode(const N& val);
+        // add edge
+        bool addEdge(const N& src, const N& dst, const E& w);
+
     };
 
-}
+    template <typename E>
+    bool operator == (const Edge<E> &, const Edge<E> &);
 
+}
+// friend operator == for Edge
+template <typename E>
+bool gdwg::operator == (const Edge<E> &lft, const Edge<E> &rht) {
+
+    return lft.index_==rht.index_ && lft.weight_==rht.weight_;
+}
 
 // node deep copy constructor, as well as copy the related edges
 template <typename N, typename E>
@@ -122,12 +148,76 @@ gdwg::Node<N, E>::Node(const Node &cpy)  {
 };
 
 // graph deep copy constructor;
+template <typename N, typename E>
+gdwg::Graph<N, E>::Graph(const gdwg::Graph<N, E> &cpy) {
+    for(unsigned int i = 0; i < cpy.node_.size(); i++) {
+        Node<N, E> new_node(*cpy.node_[i]);
+        node_.pop_back(std::make_shared<Node<N, E>>(new_node));
+    }
+}
 
+// move constructor
+template <typename N, typename E>
+gdwg::Graph<N, E>::Graph(Graph<N, E> &&cpy) {
+    for(unsigned int i = 0; i < cpy.node_.size(); i++) {
+        node_.pop_back(cpy.node_[i]);
+        cpy.node_[i] = nullptr;
+    }
+}
 
-
+// return numer of node
 template <typename N, typename E>
 int gdwg::Graph<N, E>::num_node() {
     return node_.size();
 }
 
 
+// add new node
+template <typename N, typename E>
+bool gdwg::Graph<N, E>::addNode(const N &val) {
+    for (unsigned int i = 0; i < num_node(); ++i) {
+        if(node_[i]->getv() == val)
+        {
+            return false;
+        }
+    }
+    std::shared_ptr<gdwg::Node<N, E>> insert = std::make_shared<gdwg::Node<N, E>>(val);
+    node_.push_back(insert);
+    return true;
+}
+
+// add new edge
+template <typename N, typename E>
+bool gdwg::Graph<N, E>::addEdge(const N &src, const N &dst, const E &w) {
+    // record index
+    int srci = -1;
+    int dsti = -1;
+    try {
+        for (unsigned i = 0; i <= num_node(); ++i) {
+            if (node_[i]->getv() == sec) {
+                srci = i;
+            }
+            if (node_[i]->getv() == dst) {
+                dsti = i;
+            }
+        }
+        if (srci == -1 || dsti == -1) {
+            throw std::runtime_error("can't find node");
+        }
+    }
+    catch (std::runtime_error &e) {
+        std::cout<<"oh no";
+    }
+    auto itorator = node_[srci]->getn();
+    while (itorator != nullptr) {
+        if(*itorator == )
+
+        if (itorator->getn()!= nullptr) {
+            itorator = itorator->getn();
+        } else {
+            break;
+        }
+    }
+
+
+}

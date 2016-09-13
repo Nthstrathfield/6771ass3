@@ -1,4 +1,0 @@
-template <typename N, typename E>
-int gdwg::Graph<N, E>::num_node() {
-    return node_.size();
-}
