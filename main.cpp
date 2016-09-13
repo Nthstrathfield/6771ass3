@@ -1,10 +1,13 @@
 #include <iostream>
 #include "Graph.h"
+#include <memory>
 
 int main() {
 
 
-    gdwg::Node<int, std::string> a(1);
+
+
+
 
 //    int k = a.getg();
 //    std::cout<<k<<std::endl;

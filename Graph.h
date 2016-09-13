@@ -3,7 +3,7 @@
 // Using Adjacency List to represent graph
 // copy node first, then edge
 
-namespace gdwg{
+namespace gdwg {
 
     template <typename E> class Edge;
 
@@ -30,6 +30,23 @@ namespace gdwg{
                 itorator->setn(new_edge);
             }
         }
+        // print;
+        void printnode() {
+            std::cout<<value_;
+            std::shared_ptr<Edge<E>> itorator;
+            if(next_ != nullptr) {
+                itorator = next_;
+            }
+            else {
+                return;
+            }
+            while (itorator != nullptr) {
+                std::cout<<itorator->geti();
+                std::cout<<" ";
+                itorator = itorator->getn();
+            }
+        }
+
     };
 
     // Edge template
@@ -65,16 +82,12 @@ namespace gdwg{
 
      private:
         // save node pointer node->egde1(node index|edge value)->edge2(node index|edge value)
-        std::vector<Node<N, E>*> node_;
+        std::vector<std::shared_ptr<Node>> node_;
      public:
         // default constructor
         Graph(){};
         // copy constructor
-        Graph(Graph<N, E> &cpy) {
-            for(unsigned int i; i < node_.size(); node_++) {
-
-            }
-        };
+        Graph(const Graph<N, E> &cpy);
         // move constructor
         Graph(Graph<N, E> &&cpy) {};
         //return number of nodes
@@ -92,21 +105,25 @@ gdwg::Node<N, E>::Node(const Node &cpy)  {
     std::shared_ptr<Edge<E>> itorator_new;
     itorator = cpy.next_;
     if(itorator != nullptr) {
-        next_ = std::make_shared(Edge<E>{itorator->getw(), itorator->geti()});
+        next_ = std::make_shared<Edge<E>>(itorator->getw(), itorator->geti());
         itorator_new = next_;
         itorator = itorator->getn();
     } else {
-        return *this;
+        return ;
     }
     while(itorator!= nullptr) {
         // generate new edge node
-        itorator_new->setn(std::make_shared(Edge<E>{itorator->getw(), itorator->geti()}));
+        itorator_new->setn(std::make_shared<Edge<E>>(itorator->getw(), itorator->geti()));
         // go through old
         itorator = itorator->getn();
         // go through new
         itorator_new = itorator_new->getn();
     }
 };
+
+// graph deep copy constructor;
+
+
 
 template <typename N, typename E>
 int gdwg::Graph<N, E>::num_node() {
