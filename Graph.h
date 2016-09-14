@@ -29,6 +29,8 @@ namespace gdwg {
         void addnewedge(const Edge<N, E> &edge);
         void merge(const N &, const N &);
         void removeedge(const N &node, const E &weight);
+        bool removeedge(const N &node);
+        unsigned int size();
     };
 
 
@@ -52,18 +54,12 @@ namespace gdwg {
         N getnvlue();
 
         // friend operator == for Edge
-
         friend bool operator == (const Edge<N, E> &, const Edge<N, E> &);
-
     };
-
-
-
 
 
     /*********************** Graph ***************************/
     template <typename N, typename E> class Graph {
-
      private:
         // save node pointer node->egde1(node index|edge value)->edge2(node index|edge value)
         std::vector<std::shared_ptr<Node<N, E>>> node_;
@@ -81,10 +77,122 @@ namespace gdwg {
         bool addEdge(const N& src, const N& dst, const E& w);
         bool replace(const N& oldData, const N& newData);
         void mergeReplace(const N& oldData, const N& newData);
+        void deleteNode(const N&) noexcept;
+        void deleteEdge(const N& src, const N& dst, const E& w) noexcept;
+        void clear() noexcept;
+        bool isNode(const N& val) const;
+        bool isConnected(const N& src, const N& dst) const;
+        void printNodes() const;
+        void sort();
     };
 
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    template <typename N, typename E>
+    unsigned int Node<N, E>::size() {
+        auto itroator = next_;
+        unsigned int i = 0;
+        while (itroator != nullptr) {
+            ++i;
+            itroator = itroator->getn();
+        }
+        return i;
+    }
+    // sort graph
+    template <typename N, typename E>
+    void Graph<N, E>::sort() {
+        unsigned int i,j;
+        for (i = 0;i<=num_node()-1;++i){
+            for (j = 0; j < num_node() - 1 - i; ++j) {
+                if(node_[j]->size() > node_[j + 1]->size()) {
+                    auto tmp = node_[j];
+                    node_[j] = node_[j+1];
+                    node_[j+1] = tmp;
+                }
+                if(node_[j]->size() == node_[j + 1]->size()) {
+                    if (node_[j]->getv() > node_[j+1]->get()) {
+                        auto tmp = node_[j];
+                        node_[j] = node_[j+1];
+                        node_[j+1] = tmp;
+                    }
+                }
+            }
+        }
+    }
+
+    // print nodes
+    template <typename N, typename E>
+    void Graph<N, E>::printNodes() const {
+        sort();
+        for (unsigned int i = 0; i < num_node(); ++i) {
+            std::cout<<"Edges attached to Node "<<node_[i]->getv()<<"\n";
+            node_[i]->printnode();
+        }
+    }
+    // check if this is a node
+    template <typename N, typename E>
+    bool Graph<N, E>::isNode(const N &val) const {
+        for (unsigned int i = 0; i < num_node(); ++i) {
+            if(node_[i]->getv == val) {
+                return true;
+            }
+        }
+        return false;
+    }
+    // check if Connected
+    template <typename N, typename E>
+    bool Graph<N, E>::isConnected(const N &src, const N &dst) const {
+        for (unsigned int i = 0; i < num_node(); ++i) {
+            if(node_[i]->getv == src) {
+                auto itorator = node_[i]->getn();
+                while (itorator != nullptr) {
+                    if (itorator->getnvalue() == dst) {
+                        return true;
+                    }
+                    itorator = itorator->getn();
+                }
+            }
+        }
+        return false;
+    }
+    // clear vector
+    template <typename N, typename E>
+    void Graph<N, E>::clear() noexcept {
+        node_.clear();
+    }
+    // Graph delete Edge
+    template <typename N, typename E>
+    void Graph<N, E>::deleteEdge(const N &src, const N &dst, const E &w) noexcept {
+        for (unsigned int i = 0; i < num_node(); ++i) {
+            if(node_[i]->getv == src) {
+                node_[i]->removeedge(dst, w);
+                return;
+            }
+        }
+    }
+
+
+    // Graph delete node
+    template <typename N, typename E>
+    void Graph<N, E>::deleteNode(const N &dnode) noexcept {
+        // remove outgoing edge
+        for (unsigned int i = 0; i < num_node(); ++i) {
+            if(node_[i]->getv == dnode) {
+                node_.erase(node_.begin() + i);
+                break;
+            }
+        }
+        // remove incoming edge
+        for (unsigned int i = 0; i < num_node(); ++i) {
+            int flag = 1;
+            while (flag == 1) {
+                if (node_[i]->removeedge(dnode) == 0) {
+                    flag = 0;
+                }
+            }
+        }
+    }
+
     // remove edge base value
     template <typename N, typename E>
     void Node<N, E>::removeedge(const N &node, const E &weight) {
@@ -118,8 +226,42 @@ namespace gdwg {
             itorator = nullptr;
         }
         return;
-
-
+    }
+    // remove edge
+    template <typename N, typename E>
+    bool Node<N, E>::removeedge(const N &node) {
+        auto itorator = next_;
+        auto pre = next_;
+        if (itorator == nullptr) {
+            return false;
+        }
+        if (itorator->getn() == nullptr) {
+            if(itorator->getnvlue() = node ) {
+                delete itorator;
+                itorator = nullptr;
+                next_ = nullptr;
+                return true;
+            }
+            return false;
+        }
+        itorator = itorator->getn();
+        while (itorator->getn() != nullptr) {
+            if(itorator->getnvlue() = node ) {
+                pre->setn(itorator);
+                delete itorator;
+                itorator = nullptr;
+                return true;
+            }
+            pre = itorator;
+            itorator = itorator->getn();
+        }
+        if(itorator->getnvlue() = node) {
+            pre->setn(itorator);
+            delete itorator;
+            itorator = nullptr;
+            return true;
+        }
+        return false;
     }
     //  merge same
     template <typename N, typename E>
@@ -169,7 +311,7 @@ namespace gdwg {
         itorator->setn(std::make_shared<Edge<N,E>>(edge.getnvlue(), edge.getw()));
     }
 
-    // frind operator
+    // friend operator
     template <typename N, typename E>
     bool operator == (const Edge<N, E> &lft, const Edge<N, E> &rht) {
 
@@ -262,8 +404,6 @@ namespace gdwg {
         }
 
     };
-
-
 
 #include "Graph.tmp"
 
