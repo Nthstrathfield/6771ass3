@@ -22,14 +22,6 @@ int main() {
     g.addNode(2);
 
 //
-//    g.addEdge(1,2,12);
-//    g.addEdge(1,3,13);
-//    g.addEdge(1,4,14);
-//    g.addEdge(2,1,21);
-//    g.addEdge(2,3,23);
-//    g.addEdge(3,1,31);
-//    g.addEdge(3,4,34);
-//
     g.printNodes();
 
     return 0;

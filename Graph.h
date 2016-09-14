@@ -31,7 +31,8 @@ namespace gdwg {
 //
 //        bool containedge(const Edge <N, E> &edge);
 //
-        void addnode(N &, E &);
+        void addeg(const N &, const E &);
+        E getw();
 //
 //        void merge(const N &, const N &);
 //
@@ -68,6 +69,7 @@ namespace gdwg {
         void clear() noexcept;
         bool isNode(const N &val) const;
         bool isConnected(const N &src, const N &dst) const;
+        bool isSameEdge(const N &src, const N &dst, const E&wei) const;
         void printNodes() const;
         void sort();
     };
@@ -118,12 +120,18 @@ namespace gdwg {
         return value_;
     };
 
-    // insert with sequence
     template<typename N, typename E>
-    void Node<N, E>::addnode(const N &val, const E& wei)
+    E Node<N, E>::getw() {
+        return weight_;
+    }
+
+    // add edge: insert in sequence, like priority queue
+    template<typename N, typename E>
+    void Node<N, E>::addeg(const N &val, const E& wei)
     {
         auto itorator = next_;
         auto pre_itorator = next_;
+        // if list is empty
         if(itorator == nullptr)
         {
             next_ = std::make_shared<Node<N, E>>(val, wei);
@@ -147,12 +155,68 @@ namespace gdwg {
             }
         }
         else {
-            while (itorator->next_ != nullptr) {
-                
+            // for first node
+            if (wei > itorator->weight_) {
+                itorator= itorator->next_;
             }
+            else if (wei == itorator->weight_) {
+                if (val > itorator->value_) {
+                    itorator= itorator->next_;
+                } else {
+                    next_ = std::make_shared<Node<N, E>>(val, wei);
+                    next_->next_ = pre_itorator;
+                    return;
+                }
+            }
+            else {
+                next_ = std::make_shared<Node<N, E>>(val, wei);
+                next_->next_ = pre_itorator;
+                return;
+            }
+            // for n node
+            while (itorator->next_ != nullptr) {
 
+                if (wei > itorator->weight_) {
+                    pre_itorator = itorator;
+                    itorator= itorator->next_;
+                }
+                else if (wei == itorator->weight_) {
+                    if (val > itorator->value_) {
+                        pre_itorator = itorator;
+                        itorator= itorator->next_;
+                    } else {
+                        pre_itorator->next_ = std::make_shared<Node<N, E>>(val, wei);
+                        pre_itorator->next_->next_ = itorator;
+                        return;
+                    }
+                }
+                else {
+                    pre_itorator->next_ = std::make_shared<Node<N, E>>(val, wei);
+                    pre_itorator->next_->next_ = itorator;
+                    return;
+                }
+            }
+            // for last node
+            if (wei > itorator->weight_) {
+                itorator->next_ = std::make_shared<Node<N, E>>(val, wei);
+                return;
+            }
+            else if (wei == itorator->weight_) {
+                if (val > itorator->value_) {
+                    itorator->next_ = std::make_shared<Node<N, E>>(val, wei);
+                    return;
+                } else {
+                    pre_itorator->next_ = std::make_shared<Node<N, E>>(val, wei);
+                    pre_itorator->next_->next_ = itorator;
+                    return;
+                }
+            }
+            else {
+                pre_itorator->next_ = std::make_shared<Node<N, E>>(val, wei);
+                pre_itorator->next_->next_ = itorator;
+                return;
+            }
         }
-
     }
 
 //// set new next
@@ -301,8 +365,47 @@ namespace gdwg {
         {
             std::cout << "can't find node";
         }
+        if(isSameEdge(src, dst, w)) {
+            return false;
+        }
+        for (unsigned int i = 0; i < node_.size(); ++i) {
+            if (node_[i]->getv() == src) {
+                node_[i]->addeg(dst, w);
+                break;
+            }
+        }
+        sort();
+    }
+
+    // replace egde
+    template<typename N, typename E>
+    bool Graph<N, E>::replace(const N &oldData, const N &newData) {
 
     }
+    // check if there is a same edge with same weight in the graph
+    template<typename N, typename E>
+    bool Graph<N, E>::isSameEdge(const N &src, const N &dst, const E &wei) const {
+        if(!isNode(src) || !isNode(dst)) {
+            throw std::runtime_error("can't find node");
+        }
+        else
+        {
+            for (unsigned int i = 0; i < node_.size(); ++i) {
+                if (node_[i]->getv() == src) {
+                    auto itorator = node_[i]->getn();
+                    while (itorator != nullptr) {
+                        if (itorator->getv() == dst && itorator->getw() == wei) {
+                            return true;
+                        }
+                        itorator = itorator->getn();
+                    }
+                }
+            }
+            return false;
+        }
+
+    }
+
 
 //        auto itorator = node_[srci]->getn();
 //        while (itorator != nullptr) {
