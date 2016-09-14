@@ -7,7 +7,7 @@
 namespace gdwg {
 
 
-    template <typename E> class Edge;
+    template <typename N, typename E> class Edge;
 
 
     /******************** Node ***************************/
@@ -15,39 +15,37 @@ namespace gdwg {
     class Node {
      private:
         N value_;
-        std::shared_ptr<Edge<E>> next_;
+        std::shared_ptr<Edge<N, E>> next_;
      public:
         // Constructor
         Node(const N &value): value_{value}, next_{nullptr} {};
         Node (const Node<N, E> &cpy);
-
         // MEMBER FUNCTION
-        void setn(std::shared_ptr<Edge<E>> new_edge);
+        void setn(std::shared_ptr<Edge<N, E>> new_edge);
         void printnode();
         N getv();
-        std::shared_ptr<Edge<E>> getn();
-        bool containedge(const Edge<E> &edge);
+        std::shared_ptr<Edge<N, E>> getn();
+        bool containedge(const Edge<N, E> &edge);
     };
 
 
     /********************* Edge ***************************/
-    template <typename E>
+    template <typename N, typename E>
     class Edge {
      private:
         E weight_;
         // save the index of the node, which this edge point to
-        int index_;
-        std::shared_ptr<Edge<E>> next_;
+        N nvalue_;
+        std::shared_ptr<Edge<N, E>> next_;
      public:
         // Constructor
-        Edge(E weight, int index): weight_(weight), index_(index), next_{nullptr}  {};
+        Edge(E weight, N nvalue): weight_(weight), nvalue_(nvalue), next_{nullptr}  {};
         Edge(Edge &cpy);
-
         // MEMBER FUNCTION
         E getw();
-        int geti();
-        std::shared_ptr<Edge<E>> getn();
-        void setn(std::shared_ptr<Edge<E>> n);
+        std::shared_ptr<Edge<N, E>> getn();
+        void setn(std::shared_ptr<Edge<N, E>> n);
+        N getnvlue();
 
 
     };
@@ -96,7 +94,7 @@ namespace gdwg {
             if(newi != -1) {
                 return false;
             }
-            node_[oldi]->setn(std::make_shared<Edge<E>>(newData));
+            node_[oldi]->setn(std::make_shared<Edge<N, E>>(newData));
             return true;
         }
         catch (std::runtime_error &e) {
@@ -106,7 +104,7 @@ namespace gdwg {
 
     // Check if node contains same edge
     template <typename N, typename E>
-    bool Node<N, E>::containedge(const Edge<E> &edge) {
+    bool Node<N, E>::containedge(const Edge<N, E> &edge) {
         auto itorator = next_;
         while (itorator != nullptr) {
             if (*itorator == edge) {

@@ -8,11 +8,11 @@
 template <typename N, typename E>
 Node<N, E>::Node(const Node &cpy)  {
     value_ = cpy.value_;
-    std::shared_ptr<Edge<E>> itorator;
-    std::shared_ptr<Edge<E>> itorator_new;
+    std::shared_ptr<Edge<N, E>> itorator;
+    std::shared_ptr<Edge<N, E>> itorator_new;
     itorator = cpy.next_;
     if(itorator != nullptr) {
-        next_ = std::make_shared<Edge<E>>(itorator->getw(), itorator->geti());
+        next_ = std::make_shared<Edge<N, E>>(itorator->getw(), itorator->geti());
         itorator_new = next_;
         itorator = itorator->getn();
     } else {
@@ -20,7 +20,7 @@ Node<N, E>::Node(const Node &cpy)  {
     }
     while(itorator!= nullptr) {
         // generate new edge node
-        itorator_new->setn(std::make_shared<Edge<E>>(itorator->getw(), itorator->geti()));
+        itorator_new->setn(std::make_shared<Edge<N, E>>(itorator->getw(), itorator->geti()));
         // go through old
         itorator = itorator->getn();
         // go through new
@@ -31,11 +31,11 @@ Node<N, E>::Node(const Node &cpy)  {
 // MEMBER FUNCTION
 // set new next
 template <typename N, typename E>
-void Node<N, E>::setn(std::shared_ptr<Edge<E>> new_edge) {
+void Node<N, E>::setn(std::shared_ptr<Edge<N, E>> new_edge) {
     if (next_ == nullptr) {
         next_ = new_edge;
     } else {
-        std::shared_ptr<Edge<E>> itorator = next_;
+        std::shared_ptr<Edge<N, E>> itorator = next_;
         while (itorator->getn() != nullptr) {
             itorator = itorator->getn();
         }
@@ -50,14 +50,14 @@ N Node<N, E>::getv() {
 };
 // get next_
 template <typename N, typename E>
-std::shared_ptr<Edge<E>> Node<N, E>::getn() {
+std::shared_ptr<Edge<N, E>> Node<N, E>::getn() {
     return next_;
 };
 // print value of node and its out edge;
 template <typename N, typename E>
 void Node<N, E>::printnode() {
     std::cout<<value_;
-    std::shared_ptr<Edge<E>> itorator;
+    std::shared_ptr<Edge<N, E>> itorator;
     if(next_ != nullptr) {
         itorator = next_;
     }
@@ -75,23 +75,23 @@ void Node<N, E>::printnode() {
 /************************** Edge ***************************************/
 /*********************************************************************/
 // get weight
-template <typename E>
-E Edge<E>::getw() {
+template <typename N, typename E>
+E Edge<N, E>::getw() {
     return weight_;
 }
-// get index
-template <typename E>
-int Edge<E>::geti() {
-    return index_;
+// get nvalue
+template <typename N, typename E>
+N Edge<N, E>::getnvlue() {
+    return nvalue_;
 }
 // get next edge pointer
-template <typename E>
-std::shared_ptr<Edge<E>> Edge<E>::getn() {
+template <typename N, typename E>
+std::shared_ptr<Edge<N, E>> Edge<N, E>::getn() {
     return next_;
 }
 // set next edge pointer
-template <typename E>
-void Edge<E>::setn(std::shared_ptr<Edge<E>> n) {
+template <typename N, typename E>
+void Edge<N, E>::setn(std::shared_ptr<Edge<N, E>> n) {
     next_ = n;
 }
 
@@ -171,7 +171,7 @@ bool Graph<N, E>::addEdge(const N &src, const N &dst, const E &w) {
             break;
         }
     }
-    auto new_edge = std::make_shared<Edge<E>>(w);
+    auto new_edge = std::make_shared<Edge<N, E>>(w);
     itorator->setn(new_edge);
 }
 

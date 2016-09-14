@@ -12,11 +12,8 @@ int main() {
 //    b.printnode();
 
     // test graph
-    gdwg::Graph<int, int> a;
-    int c =a.addNode(2);
-    int i = a.addNode(2);
 
-    std::cout<<c<<i;
+
 
     return 0;
 }
