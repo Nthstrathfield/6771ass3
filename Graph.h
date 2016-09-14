@@ -6,7 +6,7 @@
 
 namespace gdwg {
 
-    /******************** Node ***************************/
+    /******************** Node/Edge***************************/
     template<typename N, typename E>
     class Node {
     private:
@@ -31,7 +31,7 @@ namespace gdwg {
 //
 //        bool containedge(const Edge <N, E> &edge);
 //
-//        void addnewedge(const Edge <N, E> &edge);
+        void addnode(N &, E &);
 //
 //        void merge(const N &, const N &);
 //
@@ -74,9 +74,9 @@ namespace gdwg {
 
 
 
-/*********************************************************************/
-/************************** Node ***************************************/
-/*********************************************************************/
+/****************************************************************************/
+/************************** Node/Edge ***************************************/
+/***************************************************************************/
 
     // copy constructor
     template<typename N, typename E>
@@ -117,6 +117,43 @@ namespace gdwg {
     N Node<N, E>::getv() {
         return value_;
     };
+
+    // insert with sequence
+    template<typename N, typename E>
+    void Node<N, E>::addnode(const N &val, const E& wei)
+    {
+        auto itorator = next_;
+        auto pre_itorator = next_;
+        if(itorator == nullptr)
+        {
+            next_ = std::make_shared<Node<N, E>>(val, wei);
+            return;
+        }
+        else if (itorator->next_ == nullptr) {
+            if (wei > itorator->weight_) {
+                itorator->next_ = std::make_shared<Node<N, E>>(val, wei);
+            }
+            else if (wei == itorator->weight_) {
+                if (val > itorator->value_) {
+                    itorator->next_ = std::make_shared<Node<N, E>>(val, wei);
+                } else {
+                    next_ = std::make_shared<Node<N, E>>(val, wei);
+                    next_->next_ = itorator;
+                }
+            }
+            else {
+                next_ = std::make_shared<Node<N, E>>(val, wei);
+                next_->next_ = itorator;
+            }
+        }
+        else {
+            while (itorator->next_ != nullptr) {
+                
+            }
+
+        }
+
+    }
 
 //// set new next
 //    template<typename N, typename E>
@@ -251,13 +288,14 @@ namespace gdwg {
         }
     }
 
-    //// add new edge
+    // add new edge
     template<typename N, typename E>
     bool Graph<N, E>::addEdge(const N &src, const N &dst, const E &w) {
         try {
             if (!isNode(src) || !isNode(dst)) {
                 throw std::runtime_error("can't find node");
             }
+
         }
         catch (std::runtime_error & e)
         {
@@ -265,24 +303,7 @@ namespace gdwg {
         }
 
     }
-//        int srci = -1;
-//        int dsti = -1;
-//        try {
-//            for (unsigned i = 0; i < num_node(); ++i) {
-//                if (node_[i]->getv() == src) {
-//                    srci = i;
-//                }
-//                if (node_[i]->getv() == dst) {
-//                    dsti = i;
-//                }
-//            }
-//            if (srci == -1 || dsti == -1) {
-//                throw std::runtime_error("can't find node");
-//            }
-//        }
-//        catch (std::runtime_error &e) {
-//            std::cout << "oh no";
-//        }
+
 //        auto itorator = node_[srci]->getn();
 //        while (itorator != nullptr) {
 //            if ((*itorator).getw() == w && (*itorator).getnvalue() == dsti) {
