@@ -1,2 +1,207 @@
 
 
+/*********************************************************************/
+/************************** Node ***************************************/
+/*********************************************************************/
+
+// node copy constructor
+template <typename N, typename E>
+Node<N, E>::Node(const Node &cpy)  {
+    value_ = cpy.value_;
+    std::shared_ptr<Edge<E>> itorator;
+    std::shared_ptr<Edge<E>> itorator_new;
+    itorator = cpy.next_;
+    if(itorator != nullptr) {
+        next_ = std::make_shared<Edge<E>>(itorator->getw(), itorator->geti());
+        itorator_new = next_;
+        itorator = itorator->getn();
+    } else {
+        return ;
+    }
+    while(itorator!= nullptr) {
+        // generate new edge node
+        itorator_new->setn(std::make_shared<Edge<E>>(itorator->getw(), itorator->geti()));
+        // go through old
+        itorator = itorator->getn();
+        // go through new
+        itorator_new = itorator_new->getn();
+    }
+};
+
+// MEMBER FUNCTION
+// set new next
+template <typename N, typename E>
+void Node<N, E>::setn(std::shared_ptr<Edge<E>> new_edge) {
+    if (next_ == nullptr) {
+        next_ = new_edge;
+    } else {
+        std::shared_ptr<Edge<E>> itorator = next_;
+        while (itorator->getn() != nullptr) {
+            itorator = itorator->getn();
+        }
+        itorator->setn(new_edge);
+    }
+};
+
+// get value_
+template <typename N, typename E>
+N Node<N, E>::getv() {
+    return value_;
+};
+// get next_
+template <typename N, typename E>
+std::shared_ptr<Edge<E>> Node<N, E>::getn() {
+    return next_;
+};
+// print value of node and its out edge;
+template <typename N, typename E>
+void Node<N, E>::printnode() {
+    std::cout<<value_;
+    std::shared_ptr<Edge<E>> itorator;
+    if(next_ != nullptr) {
+        itorator = next_;
+    }
+    else {
+        return;
+    }
+    while (itorator != nullptr) {
+        std::cout<<itorator->geti();
+        std::cout<<" ";
+        itorator = itorator->getn();
+    }
+};
+
+/*********************************************************************/
+/************************** Edge ***************************************/
+/*********************************************************************/
+// get weight
+template <typename E>
+E Edge<E>::getw() {
+    return weight_;
+}
+// get index
+template <typename E>
+int Edge<E>::geti() {
+    return index_;
+}
+// get next edge pointer
+template <typename E>
+std::shared_ptr<Edge<E>> Edge<E>::getn() {
+    return next_;
+}
+// set next edge pointer
+template <typename E>
+void Edge<E>::setn(std::shared_ptr<Edge<E>> n) {
+    next_ = n;
+}
+
+/*************************************************************************/
+/************************** Graph ***************************************/
+/***********************************************************************/
+
+
+// graph deep copy constructor;
+template <typename N, typename E>
+Graph<N, E>::Graph(const Graph<N, E> &cpy) {
+    for(unsigned int i = 0; i < cpy.node_.size(); i++) {
+        Node<N, E> new_node(*cpy.node_[i]);
+        node_.pop_back(std::make_shared<Node<N, E>>(new_node));
+    }
+}
+
+// move constructor
+template <typename N, typename E>
+Graph<N, E>::Graph(Graph<N, E> &&cpy) {
+    for(unsigned int i = 0; i < cpy.node_.size(); i++) {
+        node_.pop_back(cpy.node_[i]);
+        cpy.node_[i] = nullptr;
+    }
+}
+
+// return numer of node
+template <typename N, typename E>
+int Graph<N, E>::num_node() {
+    return node_.size();
+}
+
+// add new node
+template <typename N, typename E>
+bool Graph<N, E>::addNode(const N &val) {
+    for (unsigned int i = 0; i < num_node(); ++i) {
+        if(node_[i]->getv() == val)
+        {
+            return false;
+        }
+    }
+    std::shared_ptr<Node<N, E>> insert = std::make_shared<Node<N, E>>(val);
+    node_.push_back(insert);
+    return true;
+}
+
+// add new edge
+template <typename N, typename E>
+bool Graph<N, E>::addEdge(const N &src, const N &dst, const E &w) {
+    // record index
+    int srci = -1;
+    int dsti = -1;
+    try {
+        for (unsigned i = 0; i <= num_node(); ++i) {
+            if (node_[i]->getv() == src) {
+                srci = i;
+            }
+            if (node_[i]->getv() == dst) {
+                dsti = i;
+            }
+        }
+        if (srci == -1 || dsti == -1) {
+            throw std::runtime_error("can't find node");
+        }
+    }
+    catch (std::runtime_error &e) {
+        std::cout<<"oh no";
+    }
+    auto itorator = node_[srci]->getn();
+    while (itorator != nullptr) {
+        if(*itorator.weight_ == w && *itorator.index_ = dsti) {
+            return false;
+        }
+        if (itorator->getn()!= nullptr) {
+            itorator = itorator->getn();
+        } else {
+            break;
+        }
+    }
+    auto new_edge = std::make_shared<Edge<E>>(w);
+    itorator->setn(new_edge);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
