@@ -3,26 +3,27 @@
 #include <memory>
 
 int main() {
+    gdwg::Graph<std::string,int> gCopy;
 
-    // make a graph
-    gdwg::Graph<unsigned int,int> g;
+    // create some data to store as nodes.
+    std::string s = "a";
+    std::string t = "b";
+    std::string u = "c";
 
-    g.addNode(1);
-    g.addNode(2);
-    g.addNode(3);
-    g.addNode(4);
+    // add this data into the graph
+    gCopy.addNode(s);
+    gCopy.addNode(t);
+    gCopy.addNode(u);
 
-    g.addEdge(1,2,12);
-    g.addEdge(1,3,13);
-    g.addEdge(1,4,14);
-    g.addEdge(2,1,21);
-    g.addEdge(2,3,23);
-    g.addEdge(3,1,31);
-    g.addEdge(3,4,34);
+    gCopy.addEdge(u,t,1);
+    gCopy.addEdge(u,t,2);
 
-    for (g.begin(); !g.end(); g.next()){
-        std::cout<<g.value();
+    const auto& constGraph = gCopy;
 
-    }
+    std::cout << std::boolalpha << constGraph.isNode("a") << std::endl;
+    std::cout << std::boolalpha << constGraph.isConnected("a","b") << std::endl;
+    std::cout << std::boolalpha << constGraph.isConnected("c","b") << std::endl;
 
+    std::cout << "Const graph: " << std::endl;
+    constGraph.printNodes();
 }
