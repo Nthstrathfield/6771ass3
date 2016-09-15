@@ -45,16 +45,15 @@ namespace gdwg {
     private:
         // save node pointer node->egde1(node index|edge value)->edge2(node index|edge value)
         std::vector<std::shared_ptr<Node<N, E>>> node_;
+        mutable typename std::vector<std::shared_ptr<Node<N, E>>>::const_iterator iterator_;
+
     public:
         // default constructor
         Graph() {};
-
         // copy constructor
         Graph(const Graph<N, E> &cpy);
-
         // move constructor
         Graph(Graph<N, E> &&cpy);
-
         // MEMBER FUNCTION
         int num_node() const;
         bool addNode(const N &val);
@@ -72,6 +71,11 @@ namespace gdwg {
         void sort();
         std::shared_ptr<Node<N, E>> findnode(const N &val) const;
         unsigned int findindex(const N &val) const;
+
+        void begin() const;
+        bool end() const;
+        void next() const;
+        const N& value() const;
     };
 
     /****************************************************************************/
@@ -335,6 +339,26 @@ namespace gdwg {
     /*************************************************************************/
     /************************** Graph ***************************************/
     /***********************************************************************/
+    template<typename N, typename E>
+    void Graph<N, E>::begin() const {
+        iterator_ = node_.cbegin();
+    }
+
+    template<typename N, typename E>
+    bool Graph<N, E>::end() const {
+        return iterator_ == node_.cend();
+    }
+
+    template<typename N, typename E>
+    void Graph<N, E>::next() const {
+        iterator_ ++;
+    }
+    template<typename N, typename E>
+    const N& Graph<N, E>::value() const {
+        return (*(*iterator_)).getv();
+    }
+
+
     // add new node
     template<typename N, typename E>
     bool Graph<N, E>::addNode(const N &val) {

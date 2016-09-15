@@ -3,7 +3,7 @@
 #include <memory>
 
 int main() {
-    // make a graph
+
     // make a graph
     gdwg::Graph<unsigned int,int> g;
 
@@ -20,5 +20,9 @@ int main() {
     g.addEdge(3,1,31);
     g.addEdge(3,4,34);
 
-    g.printNodes();
+    for (g.begin(); !g.end(); g.next()){
+        std::cout<<g.value();
+
+    }
+
 }
