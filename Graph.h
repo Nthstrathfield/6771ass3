@@ -15,19 +15,15 @@ namespace gdwg {
         E weight_;
         std::shared_ptr<Node<N, E>> next_;
     public:
-        // edge constructor
+        // Constructor
         Node(const N &value, const E weight) : value_{value}, weight_{weight}, next_{nullptr} {};
-        // node constructor
         Node(const N &value) : value_{value}, weight_{0}, next_{nullptr} {};
-        // copy constructor
-        Node(const Node<N, E> &cpy);
         // MEMBER FUNCTION
         void setn(std::shared_ptr<Node<N, E>> new_edge);
         void setv(const N &value);
         void printnode();
         N getv();
         std::shared_ptr<Node<N, E>> getn();
-//        bool containedge(const Edge <N, E> &edge);
         void addeg(const N &, const E &);
         E getw();
         void merge(const N &, const N &);
@@ -56,14 +52,16 @@ namespace gdwg {
         unsigned int findindex(const N &val) const;
 
     public:
-        // default constructor
+        // Constructor
         Graph() {};
-        // copy constructor
         Graph(const Graph<N, E> &cpy);
-        // move constructor
         Graph(Graph<N, E> &&cpy);
+        // Copy
+        Graph & operator = (const Graph<N,E> &);
+        // Move
+        Graph & operator = (Graph<N, E> &&) noexcept;
+
         // MEMBER FUNCTION
-//        int num_node() const;
         bool addNode(const N &val);
         bool addEdge(const N &src, const N &dst, const E &w);
         bool replace(const N &oldData, const N &newData);
@@ -84,22 +82,6 @@ namespace gdwg {
     /****************************************************************************/
     /************************** Node/Edge ***************************************/
     /***************************************************************************/
-
-    // copy constructor
-    template<typename N, typename E>
-    Node<N, E>::Node(const Node &cpy) {
-        if (cpy.next_ != nullptr) {
-            weight_ = cpy.weight_;
-            value_ = cpy.value_;
-            next_ = nullptr;
-            return;
-        }
-        Node<N, E> next(*(cpy.next_));
-        weight_ = cpy.weight_;
-        value_ = cpy.value_;
-        next_ = std::make_shared(next);
-    };
-
     // MEMBER FUNCTION
     // return node size
     template<typename N, typename E>
@@ -260,14 +242,19 @@ namespace gdwg {
             if (itorator->getv() == node && itorator->getw() == weight) {
                 itorator = nullptr;
                 next_ = nullptr;
+                return;
             }
+            return;
+        }
+        if(itorator->getv() == node && itorator->getw() == weight) {
+            next_ = itorator->getn();
+            itorator = nullptr;
             return;
         }
         itorator = itorator->getn();
         while (itorator->getn() != nullptr) {
             if (itorator->getv() == node && itorator->getw() == weight) {
-                pre->setn(itorator);
-
+                pre->setn(itorator->getn());
                 itorator = nullptr;
                 return;
             }
@@ -275,9 +262,9 @@ namespace gdwg {
             itorator = itorator->getn();
         }
         if (itorator->getv() == node && itorator->getw() == weight) {
-            pre->setn(itorator);
-
+            pre->setn(nullptr);
             itorator = nullptr;
+            return;
         }
         return;
     }
@@ -292,28 +279,30 @@ namespace gdwg {
             return false;
         }
         if (itorator->getn() == nullptr) {
-            if (itorator->getnvlue() = node) {
-                delete itorator;
+            if (itorator->getv() == node) {
                 itorator = nullptr;
                 next_ = nullptr;
                 return true;
             }
             return false;
         }
+        if(itorator->getv() == node) {
+            next_ = itorator->getn();
+            itorator = nullptr;
+            return true;
+        }
         itorator = itorator->getn();
         while (itorator->getn() != nullptr) {
-            if (itorator->getnvlue() = node) {
-                pre->setn(itorator);
-                delete itorator;
+            if (itorator->getv() == node) {
+                pre->setn(itorator->getn());
                 itorator = nullptr;
                 return true;
             }
             pre = itorator;
             itorator = itorator->getn();
         }
-        if (itorator->getnvlue() = node) {
-            pre->setn(itorator);
-            delete itorator;
+        if (itorator->getv() == node) {
+            pre->setn(nullptr);
             itorator = nullptr;
             return true;
         }
@@ -511,25 +500,53 @@ namespace gdwg {
     }
 
 
+    // graph copy constructor;
+    template<typename N, typename E>
+    Graph<N, E>::Graph(const Graph <N, E> &cpy) {
+        for (unsigned int i = 0; i < cpy.node_.size(); i++) {
+            auto iterator = cpy.node_[i]->getn();
+            auto iterator_new = std::make_shared<Node<N, E>>(cpy.node_[i]->getv(), cpy.node_[i]->getw());
+            node_.push_back(iterator_new);
+            while (iterator != nullptr) {
+                iterator_new->setn(std::make_shared<Node<N, E>>(iterator->getv(), iterator->getw()));
+                iterator_new = iterator_new->getn();
+                iterator = iterator->getn();
+            }
+        }
+    }
+    // move constructor
+    template<typename N, typename E>
+    Graph<N, E>::Graph(Graph <N, E> &&cpy) {
+        for (unsigned int i = 0; i < cpy.node_.size(); i++) {
+            node_.push_back(cpy.node_[i]);
+        }
+        cpy.node_.clear();
+    }
+    // copy assignment
+    template<typename N, typename E>
+    Graph<N,E> & Graph<N, E>::operator = (const Graph<N, E> &cpy) {
+        node_.clear();
+        for (unsigned int i = 0; i < cpy.node_.size(); i++) {
+            auto iterator = cpy.node_[i]->getn();
+            auto iterator_new = std::make_shared<Node<N, E>>(cpy.node_[i]->getv(), cpy.node_[i]->getw());
+            node_.push_back(iterator_new);
+            while (iterator != nullptr) {
+                iterator_new->setn(std::make_shared<Node<N, E>>(iterator->getv(), iterator->getw()));
+                iterator_new = iterator_new->getn();
+                iterator = iterator->getn();
+            }
+        }
+    }
+    // move assignment
+    template<typename N, typename E>
+    Graph<N,E> & Graph<N, E>::operator = (Graph<N, E> &&cpy) noexcept {
+        node_.clear();
+        for (unsigned int i = 0; i < cpy.node_.size(); i++) {
+            node_.push_back(cpy.node_[i]);
+        }
+        cpy.node_.clear();
+    }
 
-//// graph deep copy constructor;
-//template<typename N, typename E>
-//Graph<N, E>::Graph(const Graph <N, E> &cpy) {
-//    for (unsigned int i = 0; i < cpy.node_.size(); i++) {
-//        Node <N, E> new_node(*cpy.node_[i]);
-//        node_.pop_back(std::make_shared<Node < N, E>>
-//        (new_node));
-//    }
-//}
-//
-//// move constructor
-//template<typename N, typename E>
-//Graph<N, E>::Graph(Graph <N, E> &&cpy) {
-//    for (unsigned int i = 0; i < cpy.node_.size(); i++) {
-//        node_.pop_back(cpy.node_[i]);
-//        cpy.node_[i] = nullptr;
-//    }
-//}
 
     // clear vector
     template<typename N, typename E>
@@ -554,7 +571,7 @@ namespace gdwg {
     void Graph<N, E>::deleteNode(const N &dnode) noexcept {
         // remove outgoing edge
         for (unsigned int i = 0; i < num_node(); ++i) {
-            if (node_[i]->getv == dnode) {
+            if (node_[i]->getv() == dnode) {
                 node_.erase(node_.begin() + i);
                 break;
             }
@@ -568,6 +585,7 @@ namespace gdwg {
                 }
             }
         }
+        sort();
     }
 
     //  merge same
@@ -631,13 +649,9 @@ namespace gdwg {
         if (node != nullptr) {
             std::cout << "Edges attached to Node " << node->getv() << "\n";
             node->printnode();
-
         }
 
     }
 }
-
-
-// move constructor delete pointer or leave it
 
 

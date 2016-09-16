@@ -3,27 +3,38 @@
 #include <memory>
 
 int main() {
-    // make a graph
-    gdwg::Graph<unsigned int,int> g;
+    auto gHeap = new gdwg::Graph<std::string,int>{};
 
-    g.addNode(1);
-    g.addNode(2);
-    g.addNode(3);
-    g.addNode(4);
+    // add this data into the graph
+    gHeap->addNode("a");
+    gHeap->addNode("b");
+    gHeap->addNode("c");
+    gHeap->addNode("d");
 
-    g.addEdge(1,2,12);
-    g.addEdge(1,3,13);
-    g.addEdge(1,4,14);
-    g.addEdge(2,1,21);
-    g.addEdge(2,3,23);
-    g.addEdge(3,1,31);
-    g.addEdge(3,4,34);
+    gHeap->addEdge("b","a",3);
+    gHeap->addEdge("b","a",5);
+    gHeap->addEdge("c","a",3);
 
-    for (g.begin(); !g.end(); g.next())
-        std::cout << g.value() << std::endl;
+    std::cout << "original graph" << std::endl;
+    gHeap->printNodes();
+    gHeap->printEdges("b");
 
-    const auto& cg = g;
+    gdwg::Graph<std::string,int> gHeapCopy;
+    gHeapCopy.addNode("z");
+    std::cout << "Graph before copy assignment" << std::endl;
+    gHeapCopy.printNodes();
 
-    for (cg.begin(); !cg.end(); cg.next())
-        std::cout << cg.value() << std::endl;
+    gHeapCopy = std::move(*gHeap);	// move assignment
+
+    // We shouldn't use a moved-from object, in general.
+    // However, here, for testing purposes, we assumed
+    // a moved-from graph is an empty graph.
+    std::cout << "moved-from graph (expected to be empty)" << std::endl;
+    gHeap->printNodes();
+    delete gHeap;
+
+    std::cout << "moved-to graph" << std::endl;
+    gHeapCopy.printNodes();
+    gHeapCopy.printEdges("b");
+
 }
