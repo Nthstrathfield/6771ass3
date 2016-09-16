@@ -48,6 +48,12 @@ namespace gdwg {
         //
         std::vector<std::shared_ptr<Node<N, E>>> node_;
         mutable typename std::vector<std::shared_ptr<Node<N, E>>>::const_iterator iterator_;
+        mutable int position;
+        int num_node() const;
+        bool isSameEdge(const N &src, const N &dst, const E &wei) const;
+        void sort();
+        std::shared_ptr<Node<N, E>> findnode(const N &val) const;
+        unsigned int findindex(const N &val) const;
 
     public:
         // default constructor
@@ -57,7 +63,7 @@ namespace gdwg {
         // move constructor
         Graph(Graph<N, E> &&cpy);
         // MEMBER FUNCTION
-        int num_node() const;
+//        int num_node() const;
         bool addNode(const N &val);
         bool addEdge(const N &src, const N &dst, const E &w);
         bool replace(const N &oldData, const N &newData);
@@ -67,12 +73,8 @@ namespace gdwg {
         void clear() noexcept;
         bool isNode(const N &val) const;
         bool isConnected(const N &src, const N &dst) const;
-        bool isSameEdge(const N &src, const N &dst, const E &wei) const;
         void printNodes() const;
         void printEdges(const N &val) const;
-        void sort();
-        std::shared_ptr<Node<N, E>> findnode(const N &val) const;
-        unsigned int findindex(const N &val) const;
         void begin() const;
         bool end() const;
         void next() const;
@@ -342,21 +344,25 @@ namespace gdwg {
     template<typename N, typename E>
     void Graph<N, E>::begin() const {
         iterator_ = node_.cbegin();
+        position = 0;
+
     }
 
     template<typename N, typename E>
     bool Graph<N, E>::end() const {
         return iterator_ == node_.cend();
+
     }
 
     template<typename N, typename E>
     void Graph<N, E>::next() const {
         iterator_++;
+        position++;
     }
 
     template<typename N, typename E>
     const N &Graph<N, E>::value() const {
-        return (*iterator_)->getv();
+        return node_[position]->getv();
     }
 
 
@@ -630,5 +636,8 @@ namespace gdwg {
 
     }
 }
+
+
+// move constructor delete pointer or leave it
 
 
