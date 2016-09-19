@@ -385,7 +385,7 @@
         return true;
     }
 
-    // replace egde
+    // replace node
     template<typename N, typename E>
     bool Graph<N, E>::replace(const N &oldData, const N &newData) {
 //        try {
@@ -395,8 +395,15 @@
         if (isNode(newData)) {
             return false;
         } else {
+            // replace node
             auto node = findnode(oldData);
             node->setv(newData);
+            // replace edge
+            for (unsigned int i = 0; i < node_.size(); ++i)
+            {
+                auto tmp = node_[i]->findedge(oldData);
+                tmp->setv(newData);
+            }
             sort();
         }
         return true;
